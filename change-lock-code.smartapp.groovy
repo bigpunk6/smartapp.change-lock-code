@@ -9,8 +9,8 @@ preferences {
 		input "lock1","capability.lock", title: "Lock"
     }
     section("User") {
-        input "user1", "enum", title: "User", metadata: [values: ["1","2","3","4","5","6","7","8","9","10","11","12","13"]]
-		input "code1","number"
+        input "user1", "decimal", title: "User"
+		input "code1", "decimal", title: "Code"
     }
 }
 
