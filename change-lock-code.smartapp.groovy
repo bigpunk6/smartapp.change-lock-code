@@ -10,7 +10,7 @@ preferences {
     }
     section("User") {
         input "user1", "decimal", title: "User (From 1 to 30) "
-        input "code1", "decimal", title: "Code (4 to 6 digit)"
+        input "code1", "decimal", title: "Code (4 to 8 digits)"
     }
 }
 
