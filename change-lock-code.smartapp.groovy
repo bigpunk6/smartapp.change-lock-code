@@ -4,6 +4,17 @@
  *  Author: bigpunk6
  */
 
+
+// Automatically generated. Make future change here.
+definition(
+    name: "Change Lock Codes",
+    namespace: "",
+    author: "mkurtzjr@live.com",
+    description: "Change Lock Codes",
+    category: "My Apps",
+    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience%402x.png")
+
 preferences {
     section("What Lock") {
                 input "lock1","capability.lock", title: "Lock"
@@ -18,28 +29,27 @@ preferences {
 def installed()
 {
         subscribe(app, appTouch)
-        subscribe(lock1, "usercode", usercodeget)
+        subscribe(lock1, "code$user1", usercodeget)
 }
 
 def updated()
 {
         unsubscribe()
         subscribe(app, appTouch)
-        subscribe(lock1, "usercode", usercodeget)
+        subscribe(lock1, "code$user1", usercodeget)
 }
 
 def appTouch(evt) {
-    log.debug "Current Code for user $user1: $lock1.currentUsercode"
+    log.debug "Current Code for user $user1: $lock1.currentcode$user1"
     log.debug "user: $user1, code: $code1"
-    def idstatus1 = 1
+    log.debug "$delete1 to Delete User"
     if (delete1 == "Yes") {
-        idstatus1 = 0
+        lock1.deleteCode(user1)
     } else {
-        idstatus1 = 1
+        lock1.setCode(user1, code1)
     }
-    lock1.usercodechange(user1, code1, idstatus1)
 }
 
 def usercodeget(evt){
-    log.debug "Current Code for user $user1: $lock1.currentUsercode"
+    log.debug "Current Code for user $user1: $lock1.currentcode$user1"
 }
