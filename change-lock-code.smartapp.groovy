@@ -1,45 +1,57 @@
 /**
- *  Change Lock Codes
+ *  Change or Delete Lock Codes
  *
  *  Author: bigpunk6
  */
+ 
+definition(
+    name: "Change or Delete Lock Codes",
+    namespace: "",
+    author: "bigpunk6",
+    description: "Change or Delete Lock Codes",
+    category: "My Apps",
+    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience%402x.png")
 
 preferences {
     section("What Lock") {
-                input "lock1","capability.lock", title: "Lock"
+                input "lock","capability.lock", title: "Lock"
     }
     section("User") {
-        input "user1", "decimal", title: "User (From 1 to 30) "
-        input "code1", "decimal", title: "Code (4 to 8 digits)"
-        input "delete1", "enum", title: "Delete User", required: false, metadata: [values: ["Yes","No"]]
+        input "user", "number", title: "User (From 1 to 30) "
+        input "code", "text", title: "Code (4 to 8 digits) or X to Delete"
     }
 }
 
 def installed()
 {
         subscribe(app, appTouch)
-        subscribe(lock1, "usercode", usercodeget)
+        subscribe(lock, "codeReport", codereturn)
 }
 
 def updated()
 {
         unsubscribe()
         subscribe(app, appTouch)
-        subscribe(lock1, "usercode", usercodeget)
+        subscribe(lock, "codeReport", codereturn)
 }
 
 def appTouch(evt) {
-    log.debug "Current Code for user $user1: $lock1.currentUsercode"
-    log.debug "user: $user1, code: $code1"
-    def idstatus1 = 1
-    if (delete1 == "Yes") {
-        idstatus1 = 0
+    
+    if (code.equalsIgnoreCase("X")) {
+        log.debug "Deleting user $user"
+        lock.deleteCode(user)
     } else {
-        idstatus1 = 1
+        log.debug "Set user: $user, code: $code"
+        lock.setCode(user, code)
     }
-    lock1.usercodechange(user1, code1, idstatus1)
 }
 
-def usercodeget(evt){
-    log.debug "Current Code for user $user1: $lock1.currentUsercode"
+def codereturn(evt){
+	def codenumber = evt.data.replaceAll("\\D+","");
+    if (codenumber == "") {
+        log.debug "User $evt.value was deleted"
+    } else {
+        log.debug "Current Code for user $evt.value is $codenumber"
+    }
 }
