@@ -49,10 +49,8 @@ def updated()
 def appTouch(evt) {
     
     if (code.equalsIgnoreCase("X")) {
-        log.debug "Deleting user $user"
         lock.deleteCode(user)
     } else {
-        log.debug "Set user: $user, code: $code"
         lock.setCode(user, code)
     }
 }
@@ -61,11 +59,9 @@ def codereturn(evt) {
 	def codenumber = evt.data.replaceAll("\\D+","");
     if (codenumber == "") {
         def message = "User $username in user slot $evt.value was deleted from $lock"
-        log.info message
         send(message)
     } else {
         def message = "Code for user $username in user slot $evt.value was set to $codenumber on $lock"
-        log.info message
         send(message)
     }
 }
@@ -74,24 +70,18 @@ def codeUsed(evt) {
     if(evt.value == "unlocked" && evt.data) {
     	def codeData = new JsonSlurper().parseText(evt.data)
         def message = "$lock was unlocked by $username in user slot $codeData.usedCode"
-        log.debug "usedcode $codeData.usedCode"
         if(codeData.usedCode == user && sendCode == "Yes") {
             send(message)
         }
-        log.info message
     }
 }
 
 private send(msg) {
     if (sendPushMessage == "Yes") {
-        log.debug("sending push message")
         sendPush(msg)
     }
 
     if (phone) {
-        log.debug("sending text message")
         sendSms(phone, msg)
     }
-
-    log.debug msg
 }
