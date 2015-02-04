@@ -57,12 +57,14 @@ def appTouch(evt) {
 
 def codereturn(evt) {
 	def codenumber = evt.data.replaceAll("\\D+","");
-    if (codenumber == "") {
-        def message = "User $username in user slot $evt.value was deleted from $lock"
-        send(message)
-    } else {
-        def message = "Code for user $username in user slot $evt.value was set to $codenumber on $lock"
-        send(message)
+    if (evt.value == user) {
+        if (codenumber == "") {
+            def message = "User $username in user slot $evt.value code is not set or was deleted on $lock"
+            send(message)
+        } else {
+            def message = "Code for user $username in user slot $evt.value was set to $codenumber on $lock"
+            send(message)
+        }
     }
 }
 
