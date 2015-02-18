@@ -55,7 +55,7 @@ def appTouch(evt) {
 
 def codereturn(evt) {
   def codenumber = evt.data.replaceAll("\\D+","");
-    if (evt.value == user) {
+    if (evt.value == Integer.toString(user)) {
         if (codenumber == "") {
             def message = "User $username in user slot $evt.value code is not set or was deleted on $evt.displayName"
             send(message)
