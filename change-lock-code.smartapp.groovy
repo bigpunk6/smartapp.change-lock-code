@@ -17,7 +17,7 @@ import groovy.json.JsonSlurper
 
 preferences {
     section("Which Locks?") {
-                input "locks","capability.lock", title: "Lock", multiple: true
+                input "locks","capability.lock", title: "Locks", multiple: true
     }
     section("User") {
         input "username", "text", title: "Name for User"
