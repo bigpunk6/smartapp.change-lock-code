@@ -3,12 +3,12 @@
  *
  *  Author: bigpunk6
  */
- 
+
 definition(
     name: "Change or Delete Door Lock Codes - Notify",
     namespace: "bigpunk6",
     author: "bigpunk6",
-    description: "This app alows you to change or delete the user codes for your smart door lock",
+    description: "This app alows you to change or delete the user codes for your smart door locks",
     category: "Safety & Security",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience%402x.png")
@@ -16,8 +16,8 @@ definition(
 import groovy.json.JsonSlurper
 
 preferences {
-    section("What Lock") {
-                input "lock","capability.lock", title: "Lock"
+    section("Which Locks?") {
+                input "locks","capability.lock", title: "Lock", multiple: true
     }
     section("User") {
         input "username", "text", title: "Name for User"
@@ -25,7 +25,6 @@ preferences {
         input "code", "text", title: "Code (4 to 8 digits) or X to Delete"
     }
     section( "Notifications" ) {
-        input "sendCode", "enum", title: "Send notification when users code is used", metadata:[values:["Yes","No"]], required:false
         input "sendPushMessage", "enum", title: "Send a push notification?", metadata:[values:["Yes","No"]], required:false
         input "phone", "phone", title: "Send a Text Message?", required: false
     }
@@ -33,36 +32,35 @@ preferences {
 
 def installed()
 {
-        subscribe(app, appTouch)
-        subscribe(lock, "codeReport", codereturn)
-        subscribe(lock, "lock", codeUsed)
+    subscribe(app, appTouch)
+    subscribe(locks, "codeReport", codereturn)
+    subscribe(locks, "lock", codeUsed)
 }
 
 def updated()
 {
-        unsubscribe()
-        subscribe(app, appTouch)
-        subscribe(lock, "codeReport", codereturn)
-        subscribe(lock, "lock", codeUsed)
+    unsubscribe()
+    subscribe(app, appTouch)
+    subscribe(locks, "codeReport", codereturn)
+    subscribe(locks, "lock", codeUsed)
 }
 
 def appTouch(evt) {
-    
     if (code.equalsIgnoreCase("X")) {
-        lock.deleteCode(user)
+        locks.deleteCode(user)
     } else {
-        lock.setCode(user, code)
+        locks.setCode(user, code)
     }
 }
 
 def codereturn(evt) {
-	def codenumber = evt.data.replaceAll("\\D+","");
+  def codenumber = evt.data.replaceAll("\\D+","");
     if (evt.value == user) {
         if (codenumber == "") {
-            def message = "User $username in user slot $evt.value code is not set or was deleted on $lock"
+            def message = "User $username in user slot $evt.value code is not set or was deleted on $evt.displayName"
             send(message)
         } else {
-            def message = "Code for user $username in user slot $evt.value was set to $codenumber on $lock"
+            def message = "Code for user $username in user slot $evt.value was set to $codenumber on $evt.displayName"
             send(message)
         }
     }
@@ -70,9 +68,9 @@ def codereturn(evt) {
 
 def codeUsed(evt) {
     if(evt.value == "unlocked" && evt.data) {
-    	def codeData = new JsonSlurper().parseText(evt.data)
-        def message = "$lock was unlocked by $username in user slot $codeData.usedCode"
-        if(codeData.usedCode == user && sendCode == "Yes") {
+      def codeData = new JsonSlurper().parseText(evt.data)
+        def message = "$evt.displayName was unlocked by $username in user slot $codeData.usedCode"
+        if(codeData.usedCode == user) {
             send(message)
         }
     }
