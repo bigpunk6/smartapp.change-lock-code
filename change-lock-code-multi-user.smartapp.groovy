@@ -63,17 +63,19 @@ preferences {
     }
 }
 
-def installed(){
-        subscribe(locks, "codeReport", codereturn)
-        subscribe(locks, "lock", codeUsed)
-        checkUsers()
+def installed() {
+    initialize()
 }
 
-def updated(){
-        unsubscribe()
-        subscribe(locks, "codeReport", codereturn)
-        subscribe(locks, "lock", codeUsed)
-        checkUsers()
+def updated() {
+    unsubscribe()
+    initialize()
+}
+
+def initialize() {
+    subscribe(locks, "codeReport", codereturn)
+    subscribe(locks, "lock", codeUsed)
+    checkUsers()
 }
 
 private checkUsers() {
@@ -82,34 +84,33 @@ private checkUsers() {
     }
 }
     
-def updateCode(usernumber) {
+def updateCode(userslot) {
     def username
     def code = null
     settings.each {
-       if( it.key == "username${usernumber}" ) {
+       if( it.key == "username${userslot}" ) {
            username = "$it.value"
        }
-       if ( it.key == "code${usernumber}" ) {
+       if ( it.key == "code${userslot}" ) {
        code = "$it.value".toString()
        }
     }
     if (code == null) {
-        log.info "no code set for usernumber : $usernumber"
+        log.info "no code set for slot $userslot"
     } else {
         if (code.equalsIgnoreCase("X")) {
-            def message = "Deleting $username in slot $usernumber"
-            locks.deleteCode(usernumber)
-            send(message)
+            log.info "Deleting user in slot $userslot"
+            locks.deleteCode(userslot)
         } else {
-            def message = "Set usernumber: $usernumber, code: $code"
-            locks.setCode(usernumber, code)
-            send(message)
+            log.info "Set code for $username in slot $userslot to $code"
+            locks.setCode(userslot, code)
         }
     }
 }
 
 def codereturn(evt) {
-    def username
+    log.debug "codereturn"
+    def username = "$evt.value"
     def code = evt.data.replaceAll("\\D+","")
     settings.each {
        if( it.key == "username${evt.value}" ) {
@@ -117,7 +118,7 @@ def codereturn(evt) {
        }
     }
     if (code == "") {
-        def message = "User $username in user slot $evt.value was deleted from $evt.displayName"
+        def message = "User in slot $evt.value was deleted from $evt.displayName"
         send(message)
     } else {
         def message = "Code for user $username in user slot $evt.value was set to $code on $evt.displayName"
@@ -147,11 +148,9 @@ def codeUsed(evt) {
 
 private send(msg) {
     if (sendPushMessage == "Yes") {
-        log.debug("sending push message")
         sendPush(msg)
     }
     if (phone) {
-        log.debug("sending text message")
         sendSms(phone, msg)
     }
     log.info msg
