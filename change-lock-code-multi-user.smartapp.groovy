@@ -110,17 +110,17 @@ def updateCode(usernumber) {
 
 def codereturn(evt) {
     def username
+    def code = evt.data.replaceAll("\\D+","")
     settings.each {
-       if( it.key == "username${slotNumber}" ) {
+       if( it.key == "username${evt.value}" ) {
            username = "$it.value"
        }
     }
-	def codenumber = evt.data.replaceAll("\\D+","")
-    if (codenumber == "") {
+    if (code == "") {
         def message = "User $username in user slot $evt.value was deleted from $evt.displayName"
         send(message)
     } else {
-        def message = "Code for user $username in user slot $evt.value was set to $codenumber on $evt.displayName"
+        def message = "Code for user $username in user slot $evt.value was set to $code on $evt.displayName"
         send(message)
     }
 }
